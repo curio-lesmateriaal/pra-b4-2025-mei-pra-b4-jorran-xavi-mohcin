@@ -11,11 +11,11 @@ using System.Windows.Media.Imaging;
 
 namespace PRA_B4_FOTOKIOSK.magie
 {
-    public class ShopManager
+    public static class ShopManager
     {
-
-        public static List<KioskProduct> Products = new List<KioskProduct>();    
+        public static List<KioskProduct> Products = new List<KioskProduct>();
         public static Home Instance { get; set; }
+        private static string currentReceipt = "";
 
         public static void SetShopPriceList(string text)
         {
@@ -27,19 +27,21 @@ namespace PRA_B4_FOTOKIOSK.magie
             Instance.lbPrices.Content = Instance.lbPrices.Content + text;
         }
 
-        public static void SetShopReceipt(string text)
+        public static void SetShopReceipt(string receipt)
         {
-            Instance.lbReceipt.Content = text;
+            currentReceipt = receipt;
+            Instance.lbReceipt.Content = receipt;
         }
 
         public static string GetShopReceipt()
         {
-            return (string)Instance.lbReceipt.Content;
+            return currentReceipt;
         }
 
-        public static void AddShopReceipt(string text)
+        public static void AddShopReceipt(string receiptLine)
         {
-            SetShopReceipt(GetShopReceipt() + text);
+            currentReceipt += receiptLine;
+            Instance.lbReceipt.Content = currentReceipt;
         }
 
         public static void UpdateDropDownProducts()
@@ -51,37 +53,23 @@ namespace PRA_B4_FOTOKIOSK.magie
             }
         }
 
-        public static KioskProduct GetSelectedProduct()
+        public static string GetSelectedProduct()
         {
-            if (Instance.cbProducts.SelectedItem == null) return null;
-            string selected = Instance.cbProducts.SelectedItem.ToString();
-            foreach (KioskProduct product in Products)
-            {
-                if (product.Name == selected) return product;
-            }
-            return null;
+            return Instance.cbProducts.SelectedItem as string;
         }
 
-        public static int? GetFotoId()
+        public static string GetFotoId()
         {
-            int? id = null;
-            int amount = -1;
-            if (int.TryParse(Instance.tbFotoId.Text, out amount))
-            {
-                id = amount;
-            }
-            return id;
+            return Instance.tbFotoId.Text.Trim();
         }
 
-        public static int? GetAmount()
+        public static int GetAmount()
         {
-            int? id = null;
-            int amount = -1;
-            if (int.TryParse(Instance.tbAmount.Text, out amount))
+            if (int.TryParse(Instance.tbAmount.Text, out int amount))
             {
-                id = amount;
+                return amount;
             }
-            return id;
+            return 0;
         }
     }
 }
