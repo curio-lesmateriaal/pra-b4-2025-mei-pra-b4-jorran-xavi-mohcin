@@ -3,6 +3,8 @@ using PRA_B4_FOTOKIOSK.models;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
+using System.Windows;
 
 namespace PRA_B4_FOTOKIOSK.controller
 {
@@ -18,11 +20,14 @@ namespace PRA_B4_FOTOKIOSK.controller
             var now = DateTime.Now;
             int today = (int)now.DayOfWeek;
 
-            // Bepaal de tijdsgrenzen: van 2 minuten 30 seconden geleden tot nu
+            // Alleen foto's van de laatste 2,5 minuut
             DateTime lowerBound = now.AddMinutes(-2).AddSeconds(-30);
             DateTime upperBound = now;
 
-            foreach (string dir in Directory.GetDirectories(@"../../../fotos"))
+            string basePath = Path.GetFullPath(@"../../../fotos");
+            var allPhotos = new List<(DateTime Time, string Path)>();
+
+            foreach (string dir in Directory.GetDirectories(basePath))
             {
                 string folderName = Path.GetFileName(dir);
                 string[] parts = folderName.Split('_');
@@ -30,7 +35,7 @@ namespace PRA_B4_FOTOKIOSK.controller
                 {
                     foreach (string file in Directory.GetFiles(dir))
                     {
-                        string fileName = Path.GetFileNameWithoutExtension(file); // bijv. 10_05_30_id8824
+                        string fileName = Path.GetFileNameWithoutExtension(file);
                         string[] fileParts = fileName.Split('_');
                         if (fileParts.Length >= 3 &&
                             int.TryParse(fileParts[0], out int hour) &&
@@ -38,15 +43,21 @@ namespace PRA_B4_FOTOKIOSK.controller
                             int.TryParse(fileParts[2], out int second))
                         {
                             DateTime photoTime = new DateTime(now.Year, now.Month, now.Day, hour, minute, second);
-
-                            // Alleen foto's van de afgelopen 2 minuten en 30 seconden
                             if (photoTime >= lowerBound && photoTime <= upperBound)
                             {
-                                PicturesToDisplay.Add(new KioskPhoto() { Id = 0, Source = file });
+                                allPhotos.Add((photoTime, file));
                             }
                         }
                     }
                 }
+            }
+
+            // Sorteer op tijd
+            allPhotos = allPhotos.OrderBy(p => p.Time).ToList();
+
+            foreach (var photo in allPhotos)
+            {
+                PicturesToDisplay.Add(new KioskPhoto() { Id = 0, Source = photo.Path });
             }
 
             PictureManager.UpdatePictures(PicturesToDisplay);
