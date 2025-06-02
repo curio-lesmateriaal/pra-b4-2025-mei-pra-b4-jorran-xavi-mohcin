@@ -22,6 +22,7 @@ namespace PRA_B4_FOTOKIOSK.controller
             //ShopManager.SetShopPriceList("Prijzen:\nFoto 10x15: €2.55");
             // hardcoded dus weggehaald
 
+
             // Stel de bon in onderaan het scherm
             ShopManager.SetShopReceipt("Eindbedrag\n€0.00");
 
