@@ -19,14 +19,14 @@ namespace PRA_B4_FOTOKIOSK.controller
         public void Start()
         {
             // Stel de prijslijst in aan de rechter kant.
-            ShopManager.SetShopPriceList("Prijzen:\nFoto 10x15: €2.55");
+            //ShopManager.SetShopPriceList("Prijzen:\nFoto 10x15: €2.55");
+            // hardcoded dus weggehaald
 
             // Stel de bon in onderaan het scherm
             ShopManager.SetShopReceipt("Eindbedrag\n€0.00");
 
             // Vul de productlijst met producten
             ShopManager.Products.Add(new KioskProduct() { Name = "Foto 10x15", Price = 2.55m, Description = "Standaard fotoformaat 10x15 cm" });
-            // Placeholders
             ShopManager.Products.Add(new KioskProduct() { Name = "Foto 13x18", Price = 3.25m, Description = "Middelgroot fotoformaat 13x18 cm" });
             ShopManager.Products.Add(new KioskProduct() { Name = "Foto 20x30", Price = 5.95m, Description = "Groot fotoformaat 20x30 cm" });
 
