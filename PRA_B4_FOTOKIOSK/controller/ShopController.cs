@@ -24,8 +24,14 @@ namespace PRA_B4_FOTOKIOSK.controller
             ShopManager.Products.Add(new KioskProduct() { Name = "Foto 13x18", Price = 3.25m, Description = "Middelgroot fotoformaat 13x18 cm" });
             ShopManager.Products.Add(new KioskProduct() { Name = "Foto 20x30", Price = 5.95m, Description = "Groot fotoformaat 20x30 cm" });
 
-            // Update prijslijst met alle producten
-            UpdatePriceList();
+            // Initialize the prices display
+            string priceList = "Prijslijst:\n\n";
+            foreach (KioskProduct product in ShopManager.Products)
+            {
+                priceList += $"{product.Name}: €{product.Price:F2}\n";
+                priceList += $"  {product.Description}\n\n";
+            }
+            ShopManager.SetShopPriceList(priceList);
 
             // Update dropdown met producten
             ShopManager.UpdateDropDownProducts();
@@ -54,9 +60,15 @@ namespace PRA_B4_FOTOKIOSK.controller
                 string fotoId = ShopManager.GetFotoId();
                 int amount = ShopManager.GetAmount();
 
+                if (string.IsNullOrEmpty(selectedProduct))
+                {
+                    MessageBox.Show("Selecteer een product.", "Fout", MessageBoxButton.OK, MessageBoxImage.Error);
+                    return;
+                }
+
                 if (string.IsNullOrEmpty(fotoId))
                 {
-                    MessageBox.Show("Voer een geldig foto-ID in.", "Fout", MessageBoxButton.OK, MessageBoxImage.Error);
+                    MessageBox.Show("Voer een foto-nummer in.", "Fout", MessageBoxButton.OK, MessageBoxImage.Error);
                     return;
                 }
 
@@ -70,22 +82,34 @@ namespace PRA_B4_FOTOKIOSK.controller
                 var product = ShopManager.Products.FirstOrDefault(p => p.Name == selectedProduct);
                 if (product == null)
                 {
-                    MessageBox.Show("Selecteer een geldig product.", "Fout", MessageBoxButton.OK, MessageBoxImage.Error);
+                    MessageBox.Show("Product niet gevonden.", "Fout", MessageBoxButton.OK, MessageBoxImage.Error);
                     return;
                 }
 
+                // Calculate total amount
+                decimal totalAmount = product.Price * amount;
                 decimal price = product.Price;
                 decimal total = price * amount;
 
-                string receiptLine = $"Foto {fotoId} - {amount}x {selectedProduct} - €{total:F2}\n";
-                ShopManager.AddShopReceipt(receiptLine);
+                // Create ordered product
+                var orderedProduct = new OrderedProduct
+                {
+                    PhotoId = fotoId,
+                    ProductName = selectedProduct,
+                    Quantity = amount,
+                    TotalPrice = totalAmount
+                };
 
+                // Add to receipt using ShopManager methods
+                ShopManager.AddShopReceipt(orderedProduct.ToString() + "\n");
 
+                // Clear inputs
                 UpdateReceiptDisplay();
 
                 // inputs weghalen
                 Window.tbFotoId.Text = "";
                 Window.tbAmount.Text = "";
+                Window.cbProducts.SelectedIndex = -1;
             }
             catch (Exception ex)
             {
@@ -147,6 +171,16 @@ namespace PRA_B4_FOTOKIOSK.controller
             {
                 MessageBox.Show($"Er is een fout opgetreden bij het opslaan: {ex.Message}", "Fout", MessageBoxButton.OK, MessageBoxImage.Error);
             }
+        }
+
+        private void UpdatePriceList()
+        {
+            string pricesText = "Prijslijst:\n\n";
+            foreach (var product in ShopManager.Products)
+            {
+                pricesText += $"{product.Name}: €{product.Price:F2}\n";
+            }
+            ShopManager.SetShopPriceList(pricesText);
         }
     }
 }

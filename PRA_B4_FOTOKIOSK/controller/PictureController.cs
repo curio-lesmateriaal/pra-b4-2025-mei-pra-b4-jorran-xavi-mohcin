@@ -20,13 +20,14 @@ namespace PRA_B4_FOTOKIOSK.controller
             var now = DateTime.Now;
             int today = (int)now.DayOfWeek;
 
-            // Alleen foto's van de laatste 2,5 minuut
-            DateTime lowerBound = now.AddMinutes(-2).AddSeconds(-30);
-            DateTime upperBound = now;
+            // Calculate time bounds: between 2 and 30 minutes ago
+            DateTime lowerBound = now.AddMinutes(-30);
+            DateTime upperBound = now.AddMinutes(-2);
 
             string basePath = Path.GetFullPath(@"../../../fotos");
             var allPhotos = new List<(DateTime Time, string Path)>();
 
+            // Collect all photos within time window
             foreach (string dir in Directory.GetDirectories(basePath))
             {
                 string folderName = Path.GetFileName(dir);
@@ -52,12 +53,34 @@ namespace PRA_B4_FOTOKIOSK.controller
                 }
             }
 
-            // Sorteer op tijd
+            // Sort by time
             allPhotos = allPhotos.OrderBy(p => p.Time).ToList();
 
-            foreach (var photo in allPhotos)
+            // Create pairs of photos taken 60 seconds apart
+            var processedIndices = new HashSet<int>();
+            
+            // First pass: Find and add pairs
+            for (int i = 0; i < allPhotos.Count; i++)
             {
-                PicturesToDisplay.Add(new KioskPhoto() { Id = 0, Source = photo.Path });
+                if (processedIndices.Contains(i)) continue;
+
+                PicturesToDisplay.Add(new KioskPhoto() { Id = 0, Source = allPhotos[i].Path });
+                processedIndices.Add(i);
+
+                // Look for matching photo taken ~60 seconds later
+                for (int j = i + 1; j < allPhotos.Count; j++)
+                {
+                    if (processedIndices.Contains(j)) continue;
+
+                    var timeDiff = allPhotos[j].Time - allPhotos[i].Time;
+                    if (Math.Abs(timeDiff.TotalSeconds - 60) < 1)
+                    {
+                        // Found matching photo, add it next to the current one
+                        PicturesToDisplay.Add(new KioskPhoto() { Id = 0, Source = allPhotos[j].Path });
+                        processedIndices.Add(j);
+                        break;
+                    }
+                }
             }
 
             PictureManager.UpdatePictures(PicturesToDisplay);
