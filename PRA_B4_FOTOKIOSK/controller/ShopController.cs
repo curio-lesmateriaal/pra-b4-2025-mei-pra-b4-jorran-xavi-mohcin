@@ -172,15 +172,5 @@ namespace PRA_B4_FOTOKIOSK.controller
                 MessageBox.Show($"Er is een fout opgetreden bij het opslaan: {ex.Message}", "Fout", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
-
-        private void UpdatePriceList()
-        {
-            string pricesText = "Prijslijst:\n\n";
-            foreach (var product in ShopManager.Products)
-            {
-                pricesText += $"{product.Name}: €{product.Price:F2}\n";
-            }
-            ShopManager.SetShopPriceList(pricesText);
-        }
     }
 }
