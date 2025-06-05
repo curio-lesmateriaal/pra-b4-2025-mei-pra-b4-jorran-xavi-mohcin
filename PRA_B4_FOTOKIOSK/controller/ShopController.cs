@@ -13,16 +13,12 @@ namespace PRA_B4_FOTOKIOSK.controller
     {
         public static Home Window { get; set; }
         private string currentReceipt = "";
-        private Dictionary<string, decimal> productPrices = new Dictionary<string, decimal>()
-        {
-            { "10x15 foto", 0.50m },
-            { "13x18 foto", 1.00m },
-            { "20x30 poster", 5.00m },
-            { "30x45 poster", 7.50m }
-        };
 
         public void Start()
         {
+            // Stel de prijslijst in aan de rechter kant.
+            ShopManager.SetShopPriceList("Prijzen:\nFoto 10x15: €2.55");
+
             // Vul de productlijst met producten
             ShopManager.Products.Add(new KioskProduct() { Name = "Foto 10x15", Price = 2.55m, Description = "Standaard fotoformaat 10x15 cm" });
             ShopManager.Products.Add(new KioskProduct() { Name = "Foto 13x18", Price = 3.25m, Description = "Middelgroot fotoformaat 13x18 cm" });
@@ -41,14 +37,14 @@ namespace PRA_B4_FOTOKIOSK.controller
             ShopManager.UpdateDropDownProducts();
         }
 
-        private void UpdatePricesDisplay()
+        private void UpdatePriceList()
         {
             string pricesText = "Prijslijst:\n\n";
-            foreach (var kvp in productPrices)
+            foreach (var product in ShopManager.Products)
             {
-                pricesText += $"{kvp.Key}: €{kvp.Value:F2}\n";
+                pricesText += $"{product.Name}: €{product.Price:F2}\n";
             }
-            Window.lbPrices.Content = pricesText;
+            ShopManager.SetShopPriceList(pricesText);
         }
 
         private void UpdateReceiptDisplay()
@@ -82,7 +78,7 @@ namespace PRA_B4_FOTOKIOSK.controller
                     return;
                 }
 
-                // Find the selected product from the Products list
+                // Zoek het product in de ShopManager.Products lijst
                 var product = ShopManager.Products.FirstOrDefault(p => p.Name == selectedProduct);
                 if (product == null)
                 {
@@ -92,6 +88,8 @@ namespace PRA_B4_FOTOKIOSK.controller
 
                 // Calculate total amount
                 decimal totalAmount = product.Price * amount;
+                decimal price = product.Price;
+                decimal total = price * amount;
 
                 // Create ordered product
                 var orderedProduct = new OrderedProduct
@@ -106,6 +104,9 @@ namespace PRA_B4_FOTOKIOSK.controller
                 ShopManager.AddShopReceipt(orderedProduct.ToString() + "\n");
 
                 // Clear inputs
+                UpdateReceiptDisplay();
+
+                // inputs weghalen
                 Window.tbFotoId.Text = "";
                 Window.tbAmount.Text = "";
                 Window.cbProducts.SelectedIndex = -1;
@@ -133,7 +134,7 @@ namespace PRA_B4_FOTOKIOSK.controller
                     return;
                 }
 
-                // Calculate total
+                // totaal berekenen
                 decimal total = 0;
                 string[] lines = receipt.Split('\n');
                 foreach (string line in lines)
@@ -145,23 +146,23 @@ namespace PRA_B4_FOTOKIOSK.controller
                     }
                 }
 
-                // Add total to receipt
+                // totaalbedrag toevoegen aan bon
                 string finalReceipt = receipt + $"\nTotaal: €{total:F2}";
                 ShopManager.SetShopReceipt(finalReceipt);
                 UpdateReceiptDisplay();
 
-                // Create a unique filename with timestamp
+                // maakt unieke bestandsnaam aan en slaat de bon op in de documenten map
                 string timestamp = DateTime.Now.ToString("yyyyMMdd_HHmmss");
                 string fileName = $"bon_{timestamp}.txt";
                 string folderPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "FotoKiosk", "Bonnen");
-                
-                // Create directory if it doesn't exist
+
+                // maak een map voor de bonnen als deze nog niet bestaat
                 Directory.CreateDirectory(folderPath);
-                
-                // Full path for the receipt file
+
+                // volledige path
                 string filePath = Path.Combine(folderPath, fileName);
 
-                // Save receipt to file
+                // bon opslaan in document
                 File.WriteAllText(filePath, finalReceipt);
 
                 MessageBox.Show($"Bon is opgeslagen in:\n{filePath}", "Succes", MessageBoxButton.OK, MessageBoxImage.Information);
