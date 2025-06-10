@@ -15,7 +15,6 @@
                         <WrapPanel x:Name="spPictures">
                         </WrapPanel>
                     </ScrollViewer>
-                    <Button x:Name="btnRefresh" Content="Refresh" HorizontalAlignment="Left" Margin="10,998,0,0" VerticalAlignment="Top" Width="83" Height="28" Click="btnRefresh_Click"/>
                 </Grid>
             </TabItem>
             <TabItem Header="Kassa">
