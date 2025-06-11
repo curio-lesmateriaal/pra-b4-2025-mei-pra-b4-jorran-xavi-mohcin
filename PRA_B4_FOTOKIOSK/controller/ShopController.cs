@@ -72,6 +72,29 @@ namespace PRA_B4_FOTOKIOSK.controller
                     return;
                 }
 
+                // Controleer of het fotoId echt bestaat
+                string basePath = Path.GetFullPath(@"../../../fotos");
+                bool fotoBestaat = false;
+                if (Directory.Exists(basePath))
+                {
+                    foreach (string dir in Directory.GetDirectories(basePath))
+                    {
+                        var files = Directory.GetFiles(dir, $"*{fotoId}*.jpg")
+                            .Concat(Directory.GetFiles(dir, $"*{fotoId}*.jpeg"))
+                            .Concat(Directory.GetFiles(dir, $"*{fotoId}*.png"));
+                        if (files.Any())
+                        {
+                            fotoBestaat = true;
+                            break;
+                        }
+                    }
+                }
+                if (!fotoBestaat)
+                {
+                    MessageBox.Show("Het opgegeven foto-ID bestaat niet.", "Fout", MessageBoxButton.OK, MessageBoxImage.Error);
+                    return;
+                }
+
                 if (amount <= 0)
                 {
                     MessageBox.Show("Voer een geldig aantal in.", "Fout", MessageBoxButton.OK, MessageBoxImage.Error);
