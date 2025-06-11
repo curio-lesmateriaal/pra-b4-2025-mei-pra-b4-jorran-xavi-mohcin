@@ -154,11 +154,11 @@ namespace PRA_B4_FOTOKIOSK.controller
                     foreach (string photoPath in group)
                     {
                         var details = GetPhotoDetails(photoPath);
-                        infoBuilder.AppendLine($"📷 {Path.GetFileName(photoPath)}");
-                        infoBuilder.AppendLine($"   📅 Datum: {details.Date}");
-                        infoBuilder.AppendLine($"   🕐 Tijd: {details.Time}");
-                        infoBuilder.AppendLine($"   📁 Map: {details.Folder}");
-                        infoBuilder.AppendLine($"   🆔 ID: {details.PhotoId}");
+                        infoBuilder.AppendLine($" {Path.GetFileName(photoPath)}");
+                        infoBuilder.AppendLine($"    Datum: {details.Date}");
+                        infoBuilder.AppendLine($"    Tijd: {details.Time}");
+                        infoBuilder.AppendLine($"    Map: {details.Folder}");
+                        infoBuilder.AppendLine($"    ID: {details.PhotoId}");
                         infoBuilder.AppendLine();
                     }
 
@@ -170,20 +170,20 @@ namespace PRA_B4_FOTOKIOSK.controller
                         if (time1.HasValue && time2.HasValue)
                         {
                             var timeDiff = Math.Abs((time2.Value - time1.Value).TotalSeconds);
-                            infoBuilder.AppendLine($"✅ Foto paar gevonden! (interval: {timeDiff:F0} seconden)");
+                            infoBuilder.AppendLine($" Foto paar gevonden! (interval: {timeDiff:F0} seconden)");
                         }
                         else
                         {
-                            infoBuilder.AppendLine("✅ Foto paar gevonden!");
+                            infoBuilder.AppendLine(" Foto paar gevonden!");
                         }
                     }
                     else if (group.Count == 1)
                     {
-                        infoBuilder.AppendLine("⚠️ Enkele foto - mogelijk ontbreekt de tweede foto");
+                        infoBuilder.AppendLine("⚠ Enkele foto - mogelijk ontbreekt de tweede foto");
                     }
                     else
                     {
-                        infoBuilder.AppendLine($"📊 {group.Count} foto's in deze groep");
+                        infoBuilder.AppendLine($" {group.Count} foto's in deze groep");
                     }
 
                     infoBuilder.AppendLine();
